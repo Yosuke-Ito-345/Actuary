@@ -1,6 +1,6 @@
 # Actuary
 
-This is an experimental package where the basic part of actuarial science is formalized using Coq -- the proof assistant.
+This is an experimental package where the basic part of actuarial mathematics is formalized using Coq -- proof assistant.
 
 ## Description of files
 - Basics : Some basic facts of mathematics are collected for the main part of the package.
