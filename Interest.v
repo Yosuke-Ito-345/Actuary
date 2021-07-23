@@ -1,13 +1,12 @@
 Require Import Reals Lra Lia.
 From mathcomp Require Import all_ssreflect.
+From Coquelicot Require Import Coquelicot.
 From Actuary Require Export Basics.
 Set Implicit Arguments.
 Unset Strict Implicit.
 Unset Printing Implicit Defensive.
 
 (****************************************************************************************)
-
-From Coquelicot Require Import Coquelicot.
 
 (* interest rate *)
 (* The interest rate "i" is supposed to be positive. *)
@@ -24,7 +23,7 @@ Notation "\d[ i ]" := (\d[i]^{1}) (at level 9).
 
 (* force of interest *)
 Definition i_force (i:R) := ln (1+i).
-Notation "δ[ i ]" := (i_force i) (at level 9).
+Notation "\δ[ i ]" := (i_force i) (at level 9).
 
 (* present value factor *)
 Definition v_pres (i:R) := /(1+i).
@@ -51,11 +50,11 @@ Notation "\s''[ i ]^{ m }_: n" := (acc_due i m n) (at level 9).
 Notation "\s''[ i ]_: n" := (\s[i]^{1}_:n) (at level 9).
 
 (* present value of a continuous annuity *)
-Definition ann_cont (i:R) (n:nat) := (1 - (\v[i])^n) / (δ[i]).
+Definition ann_cont (i:R) (n:nat) := (1 - (\v[i])^n) / (\δ[i]).
 Notation "\abar[ i ]_: n" := (ann_cont i n) (at level 9).
 
 (* future value of a continuous annuity *)
-Definition acc_cont (i:R) (n:nat) := ((1+\i[i])^n - 1) / (δ[i]).
+Definition acc_cont (i:R) (n:nat) := ((1+\i[i])^n - 1) / (\δ[i]).
 Notation "\sbar[ i ]_: n" := (acc_cont i n) (at level 9).
 
 (* present value of a perpetual annuity *)
@@ -111,14 +110,14 @@ Notation "\(Ia'')[ i ]_:(p_infty)" := (\(I^{1}a'')[i]^{1}_:(p_infty)) (at level 
 Section Interest.
 
 Variable i:R.
-Hypothesis i_pos : i > 0.
+Hypothesis i_pos : 0 < i.
 
 (* In this section, the interest rate "i" is omitted in the notations. *)
 Notation "\i" := (\i[i]) (at level 9).
 Notation "\i^{ m }" := (\i[i]^{m}) (at level 9).
 Notation "\d^{ m }" := (\d[i]^{m}) (at level 9).
 Notation "\d" := (\d^{1}) (at level 9).
-Notation "'δ'" := (δ[i]) (at level 9).
+Notation "\δ" := (\δ[i]) (at level 9).
 Notation "\v" := (\v[i]) (at level 9).
 Notation "\a^{ m }_: n" := (\a[i]^{m}_:n) (at level 9).
 Notation "\a_: n" := (\a[i]_:n) (at level 9).
@@ -156,7 +155,7 @@ Proof.
  rewrite /i_nom Rinv_1 Rpower_1; [rewrite Rmult_1_l; lra | lra].
 Qed.
 
-Lemma i_nom_pos : forall m:nat, m > 0 -> \i^{m} > 0.
+Lemma i_nom_pos : forall m:nat, 0 < m -> 0 < \i^{m}.
 Proof.
  move=> m Hgtm0.
  rewrite /i_nom -{2}(Rpower_O (1+i)); [| lra].
@@ -166,7 +165,9 @@ Proof.
  apply Rinv_0_lt_compat=> //.
 Qed.
 
-Lemma i_nom_eff : forall m:nat, m > 0 -> (1 + (\i^{m})/m)^m = 1 + \i.
+Hint Resolve i_nom_pos : core.
+
+Lemma i_nom_eff : forall m:nat, 0 < m -> (1 + (\i^{m})/m)^m = 1 + \i.
 Proof.
  rewrite /i_nom /Rdiv => m Hm0.
  rewrite Rinv_r_simpl_m; try lra.
@@ -174,7 +175,7 @@ Proof.
  rewrite Rpower_1; lra.
 Qed.
 
-Lemma i_nom_add_pos : forall m:nat, m > 0 -> 1 + \i^{m} / m > 0.
+Lemma i_nom_add_pos : forall m:nat, 0 < m -> 0 < 1 + \i^{m} / m.
 Proof.
  move => m Hmpos.
  apply Rplus_lt_0_compat; [lra|].
@@ -182,7 +183,9 @@ Proof.
  apply Rmult_lt_0_compat; [by apply i_nom_pos | by apply Rinv_0_lt_compat].
 Qed.
 
-Lemma i_nom_i : forall m:nat, m > 0 -> 1 + (\i^{m})/m = (1 + \i)^(/m).
+Hint Resolve i_nom_add_pos : core.
+
+Lemma i_nom_i : forall m:nat, 0 < m -> 1 + (\i^{m})/m = (1 + \i)^(/m).
 Proof.
  move => m Hgtm0.
  rewrite -(i_nom_eff Hgtm0).
@@ -190,59 +193,58 @@ Proof.
  rewrite Rpower_1 //; apply i_nom_add_pos => //.
 Qed.
 
-Lemma e_delta : 1+\i = exp δ.
+Lemma e_delta : 1+\i = exp \δ.
 Proof.
  rewrite /i_force (exp_ln (1+i)); lra.
 Qed.
 
-Lemma delta_pos : 0 < δ.
+Lemma delta_pos : 0 < \δ.
 Proof.
  rewrite /i_force -ln_1; apply ln_increasing; lra.
 Qed.
 
-Lemma delta_neq0 : δ <> 0.
-Proof.
- by apply (pos_neq0 delta_pos).
-Qed.
+Hint Resolve delta_pos : core.
 
-Lemma lim_i_nom : is_lim_seq (fun m:nat => \i^{m}) δ.
+Lemma lim_i_nom : is_lim_seq (fun m:nat => \i^{m}) \δ.
 Proof.
  rewrite /i_nom.
  apply (is_lim_seq_incr_n _ 1).
  apply (is_lim_seq_ext
- (fun n : nat => δ * ((exp (δ/(n+1)%N) - 1) / (δ/(n+1)%N)))).
+ (fun n : nat => \δ * ((exp (\δ/(n+1)%N) - 1) / (\δ/(n+1)%N)))).
   move => n.
   rewrite {3}plus_INR /Rpower -/i_force.
-  rewrite -(Rinv_r_simpl_m δ (n+1)); [| apply delta_neq0].
-  rewrite (Rmult_assoc δ _) -/(Rdiv _ δ) -(Rinv_Rdiv δ (n+1));
-  [| apply delta_neq0 | apply (pos_neq0 (INRp1_pos n))].
+  rewrite -(Rinv_r_simpl_m \δ (n+1)); auto.
+  rewrite (Rmult_assoc \δ _) -/(Rdiv _ \δ) -(Rinv_Rdiv \δ (n+1));
+  [| auto | apply (pos_neq0 (INRp1_pos n))].
   rewrite Rmult_assoc (Rmult_comm (/_) _) -/(Rdiv _ (_ /_)) -(plus_INR n 1).
-  by rewrite {5}/Rdiv (Rmult_comm _ δ) -/(Rdiv δ _).
- rewrite -(Rbar_mult_1_r δ).
- apply (is_lim_seq_scal_l _ δ 1).
- apply (is_lim_comp_seq (fun y:R => (exp y - 1)/y) (fun n:nat => δ / (n+1)%N) 0 1).
+  by rewrite {5}/Rdiv (Rmult_comm _ \δ) -/(Rdiv \δ _).
+ rewrite -(Rbar_mult_1_r \δ).
+ apply (is_lim_seq_scal_l _ \δ 1).
+ apply (is_lim_comp_seq (fun y:R => (exp y - 1)/y) (fun n:nat => \δ / (n+1)%N) 0 1).
    apply is_lim_div_expm1_0.
   rewrite /eventually; exists 0%N => n Hge0n.
   apply /Rbar_finite_neq /pos_neq0 /Rdiv_lt_0_compat;
   [apply delta_pos | apply Sn_pos].
- apply (is_lim_seq_ext (fun n => δ * / (n+1)%N) _); [move => n // |].
- rewrite (_ : 0 = Rbar_mult δ 0); last by rewrite /= Rmult_0_r.
- apply (is_lim_seq_scal_l _ δ 0).
+ apply (is_lim_seq_ext (fun n => \δ * / (n+1)%N) _); [move => n // |].
+ rewrite (_ : 0 = Rbar_mult \δ 0); last by rewrite /= Rmult_0_r.
+ apply (is_lim_seq_scal_l _ \δ 0).
  apply (is_lim_seq_inv _ p_infty); last by move=> H0; inversion H0.
  rewrite -(is_lim_seq_incr_n _ 1 _); apply is_lim_seq_INR.
 Qed.
 
-Lemma d_nom_pos : forall m:nat, m > 0 -> \d^{m} > 0.
+Lemma d_nom_pos : forall m:nat, 0 < m -> 0 < \d^{m}.
 Proof.
   move => m Hmpos.
   rewrite /d_nom.
   apply Rdiv_lt_0_compat; [apply i_nom_pos | apply i_nom_add_pos] => //.
 Qed.
 
-Lemma d_nom_i_nom : forall m:nat, m > 0 -> 1 - (\d^{m})/m = /(1 + (\i^{m})/m).
+Hint Resolve d_nom_pos : core.
+
+Lemma d_nom_i_nom : forall m:nat, 0 < m -> 1 - (\d^{m})/m = /(1 + (\i^{m})/m).
 Proof.
  move=> m Hmpos.
- have Hipos : 1 + \i^{m} / m > 0
+ have Hipos : 0 < 1 + \i^{m} / m
  by apply Rplus_lt_0_compat;
  [lra | apply Rmult_lt_0_compat; [by apply i_nom_pos | by apply Rinv_0_lt_compat]].
  rewrite (_ : (\d^{m})/m = 1 - /(1 + (\i^{m})/m)); [lra |].
@@ -254,42 +256,82 @@ Proof.
  by rewrite -Rmult_assoc Rplus_comm.
 Qed.
 
-Lemma lim_d_nom : is_lim_seq (fun m:nat => \d^{m}) δ.
+Lemma d_nom_v : forall m:nat, 0 < m -> \d^{m} = m * (1 - \v^(/m)).
+Proof.
+  move => m Hm.
+  rewrite /v_pres.
+  rewrite -Rpower_Ropp'; [| lra].
+  rewrite Rpower_Ropp.
+  rewrite -i_nom_i; auto.
+  rewrite -d_nom_i_nom; [field |..]; auto.
+Qed.
+
+Lemma lim_d_nom : is_lim_seq (fun m:nat => \d^{m}) \δ.
 Proof.
  rewrite /d_nom.
- rewrite -(Rdiv_1 δ).
- apply (is_lim_seq_div' _ _ δ 1); try lra.
+ rewrite -(Rdiv_1 \δ).
+ apply (is_lim_seq_div' _ _ \δ 1); try lra.
   apply lim_i_nom.
  rewrite -(Rplus_0_r 1).
  apply (is_lim_seq_plus' _ _ 1 0).
   rewrite (Rplus_0_r 1); apply is_lim_seq_const.
- apply (is_lim_seq_div _ _ δ p_infty).
+ apply (is_lim_seq_div _ _ \δ p_infty).
     apply lim_i_nom.
    apply is_lim_seq_INR.
   move => Hp; inversion Hp.
  by rewrite /is_Rbar_div /is_Rbar_mult /Rbar_inv /= Rmult_0_r.
 Qed.
 
-Lemma v_pos : \v > 0.
+Lemma Lim_d_nom: Lim_seq [eta d_nom i] = \δ.
+Proof.
+    by apply /is_lim_seq_unique /lim_d_nom.
+Qed.  
+
+Lemma v_pos : 0 < \v.
 Proof.
  apply Rinv_0_lt_compat; lra.
 Qed.
+
+Hint Resolve v_pos : core.
 
 Lemma lt_v_1 : \v < 1.
 Proof.
  rewrite -Rinv_1; apply Rinv_1_lt_contravar; lra.
 Qed.
 
+Hint Resolve lt_v_1 : core.
+
 Lemma v_in_0_1 : 0 < \v < 1.
 Proof.
  apply conj; [apply v_pos | apply lt_v_1].
 Qed.
 
-Lemma lt_vpow_1 : forall r:R, r > 0 -> (\v)^r < 1.
+Hint Resolve v_in_0_1 : core.
+
+Lemma lt_vpow_1 : forall r:R, 0 < r -> (\v)^r < 1.
 Proof.
  move => r Hrpos.
- rewrite -(Rpower_O \v); [| apply v_pos].
- apply Rpower_lt' => // ; apply v_in_0_1.
+ rewrite -(Rpower_O \v) //.
+ by apply Rpower_lt'.
+Qed.
+
+Lemma vpow_decreasing : strict_decreasing (Rpower \v).
+Proof.
+  rewrite /strict_decreasing.
+  move => u1 u2 Hu.
+  rewrite /Rpower.
+  apply exp_increasing.
+  apply Rmult_lt_gt_compat_neg_r => //.
+  rewrite -ln_1.
+  apply ln_increasing; auto.
+Qed.
+
+Lemma is_derive_vpow : forall s:R, is_derive (Rpower \v) s  (-\δ * \v^s).
+Proof.
+  move => s.
+  rewrite /Rpower.
+  auto_derive; auto.
+  rewrite /i_force {1}/v_pres ln_Rinv; lra.
 Qed.
 
 Lemma i_v : 1 + \i = (\v)^(-1).
@@ -299,7 +341,7 @@ Proof.
  [by rewrite -Rpower_Ropp Rpower_mult Rmult_opp_opp Rmult_1_l | lra].
 Qed.
 
-Lemma d_nom_i_nom_v : forall m:nat, m > 0 -> \d^{m} = (\i^{m}) * (\v)^(/m).
+Lemma d_nom_i_nom_v : forall m:nat, 0 < m -> \d^{m} = (\i^{m}) * (\v)^(/m).
 Proof.
   move => m Hmpos.
   rewrite /d_nom.
@@ -307,7 +349,7 @@ Proof.
     by rewrite Rinv_involutive; [| apply /pos_neq0 /exp_pos].
 Qed.
 
-Lemma a_calc : forall (n m : nat), m > 0 -> \a^{m}_:n = (1 - (\v)^n) / (\i^{m}).
+Lemma a_calc : forall (n m : nat), 0 < m -> \a^{m}_:n = (1 - (\v)^n) / (\i^{m}).
 Proof.
  move=> n m Hmpos.
  rewrite /ann.
@@ -335,7 +377,7 @@ Proof.
  by rewrite /i_nom.
 Qed.
 
-Lemma s_a : forall (n m : nat), m > 0 -> \s^{m}_:n = (1 + \i)^n * \a^{m}_:n.
+Lemma s_a : forall (n m : nat), 0 < m -> \s^{m}_:n = (1 + \i)^n * \a^{m}_:n.
 Proof.
   move => n m Hmpos.
   rewrite /acc /ann.
@@ -351,7 +393,7 @@ Proof.
   rewrite big_nat_rev //.
 Qed.
 
-Lemma s_calc : forall (n m :nat), m > 0 -> \s^{m}_:n = ((1+\i)^n - 1) / (\i^{m}).
+Lemma s_calc : forall (n m :nat), 0 < m -> \s^{m}_:n = ((1+\i)^n - 1) / (\i^{m}).
 Proof.
   move => n m Hmpos.
   rewrite s_a // a_calc //.
@@ -361,7 +403,7 @@ Proof.
     apply v_pos.
 Qed.
 
-Lemma a''_a : forall (n m : nat), m > 0 -> \a''^{m}_:n = (1 + (\i^{m})/m) * \a^{m}_:n.
+Lemma a''_a : forall (n m : nat), 0 < m -> \a''^{m}_:n = (1 + (\i^{m})/m) * \a^{m}_:n.
 Proof.
  move => n m Hmpos.
  rewrite big_distrr /=.
@@ -373,7 +415,7 @@ Proof.
  by [].
 Qed.
 
-Lemma a_a'' : forall (n m : nat), m > 0 -> \a^{m}_:n = (\v)^(/m) * \a''^{m}_:n.
+Lemma a_a'' : forall (n m : nat), 0 < m -> \a^{m}_:n = (\v)^(/m) * \a''^{m}_:n.
 Proof.
  move => n m Hmpos.
  rewrite a''_a //.
@@ -382,7 +424,7 @@ Proof.
  by rewrite Rinv_l; [| lra]; rewrite one_pow Rmult_1_l.
 Qed.
 
-Lemma a''_calc : forall (n m : nat), m > 0 -> \a''^{m}_:n = (1 - (\v)^n) / \d^{m}.
+Lemma a''_calc : forall (n m : nat), 0 < m -> \a''^{m}_:n = (1 - (\v)^n) / \d^{m}.
 Proof.
  move => n m Hmpos.
  rewrite a''_a //; rewrite a_calc //.
@@ -393,7 +435,7 @@ Proof.
  by[].
 Qed.
 
-Lemma s''_s : forall (n m : nat), m > 0 -> \s''^{m}_:n = (1 + (\i^{m})/m) * \s^{m}_:n.
+Lemma s''_s : forall (n m : nat), 0 < m -> \s''^{m}_:n = (1 + (\i^{m})/m) * \s^{m}_:n.
 Proof.
   move => n m Hmpos.
   rewrite big_distrr /=.
@@ -404,7 +446,7 @@ Proof.
   by [].
 Qed.
 
-Lemma s_s'' : forall (n m : nat), m > 0 -> \s^{m}_:n = (\v)^(/m) * \s''^{m}_:n.
+Lemma s_s'' : forall (n m : nat), 0 < m -> \s^{m}_:n = (\v)^(/m) * \s''^{m}_:n.
 Proof.
   move => n m Hmpos.
   rewrite s''_s //.
@@ -413,7 +455,7 @@ Proof.
     by rewrite Rinv_l; [| lra]; rewrite one_pow Rmult_1_l.
 Qed.  
 
-Lemma s''_calc : forall (n m : nat), m > 0 -> \s''^{m}_:n = ((1+\i)^n - 1) / \d^{m}.
+Lemma s''_calc : forall (n m : nat), 0 < m -> \s''^{m}_:n = ((1+\i)^n - 1) / \d^{m}.
 Proof.
   move => n m Hmpos.
   rewrite s''_s //; rewrite s_calc //.
@@ -424,7 +466,7 @@ Proof.
     by[].
 Qed.
 
-Lemma s''_a'' : forall (n m : nat), m > 0 -> \s''^{m}_:n = (1 + \i)^n * \a''^{m}_:n.
+Lemma s''_a'' : forall (n m : nat), 0 < m -> \s''^{m}_:n = (1 + \i)^n * \a''^{m}_:n.
 Proof.
   move => n m Hmpos.
   rewrite s''_calc // a''_calc //.
@@ -451,8 +493,8 @@ Proof.
  apply (is_lim_seq_ext (fun m : nat => (1 - (\v)^n) */ \i^{m+1})).
   by move => m; rewrite a_calc; [| apply Sn_pos]; rewrite /Rdiv.
  rewrite /ann_cont /Rdiv.
- apply (is_lim_seq_scal_l _ _ (/δ)).
- apply (is_lim_seq_inv _ δ); [| apply /Rbar_finite_neq /delta_neq0].
+ apply (is_lim_seq_scal_l _ _ (/(\δ))).
+ apply (is_lim_seq_inv _ \δ); [| apply /Rbar_finite_neq; auto].
  apply /(is_lim_seq_incr_n (fun m:nat => \i^{m})) /lim_i_nom.
 Qed.
 
@@ -463,8 +505,8 @@ Proof.
  apply (is_lim_seq_ext (fun m : nat => (1 - (\v)^n) */ \d^{m+1})).
   by move => m; rewrite a''_calc; [| apply Sn_pos]; rewrite /Rdiv.
  rewrite /ann_cont /Rdiv.
- apply (is_lim_seq_scal_l _ _ (/δ)).
- apply (is_lim_seq_inv _ δ); [| apply /Rbar_finite_neq /delta_neq0].
+ apply (is_lim_seq_scal_l _ _ (/(\δ))).
+ apply (is_lim_seq_inv _ \δ); [| apply /Rbar_finite_neq; auto].
  apply /(is_lim_seq_incr_n (fun m:nat => \d^{m})) /lim_d_nom.
 Qed.
 
@@ -475,7 +517,6 @@ Proof.
   apply (is_lim_seq_ext (fun m:nat => (1+\i)^n * \a^{(m+1)%coq_nat}_:n)).
   - move => m.
     rewrite s_a // (_ : 0 = 0%N) //.
-    apply /Rlt_gt /lt_INR; lia.
   - rewrite sbar_abar.
     rewrite (_ : (1+\i)^n * \abar_:n = Rbar_mult ((1+\i)^n) \abar_:n) //.
     apply (is_lim_seq_scal_l _ _ \abar_:n).
@@ -490,15 +531,14 @@ Proof.
   apply (is_lim_seq_ext (fun m:nat => (1+\i)^n * \a''^{(m+1)%coq_nat}_:n)).
   - move => m.
     rewrite s''_a'' // (_ : 0 = 0%N) //.
-    apply /Rlt_gt /lt_INR; lia.
   - rewrite sbar_abar.
     rewrite (_ : (1+\i)^n * \abar_:n = Rbar_mult ((1+\i)^n) \abar_:n) //.
     apply (is_lim_seq_scal_l _ _ \abar_:n).
     rewrite -(is_lim_seq_incr_n (fun m:nat => \a''^{m}_:n) 1).
     apply lim_m_a''.
-Qed.  
+Qed.
 
-Lemma lim_n_a : forall (m:nat), m > 0 ->
+Lemma lim_n_a : forall (m:nat), 0 < m ->
  is_lim_seq (fun n:nat => \a^{m}_:n) (\a^{m}_:(p_infty)).
 Proof.
  move => m Hmpos.
@@ -513,7 +553,7 @@ Proof.
  apply v_in_0_1.
 Qed.
 
-Lemma lim_n_a'' : forall (m:nat), m > 0 ->
+Lemma lim_n_a'' : forall (m:nat), 0 < m ->
  is_lim_seq (fun n:nat => \a''^{m}_:n) (\a''^{m}_:(p_infty)).
 Proof.
  move => m Hmpos.
@@ -528,7 +568,7 @@ Proof.
  apply v_in_0_1.
 Qed.
 
-Lemma Ilsm_Ilam : forall (l n m : nat), l > 0 -> m > 0 ->
+Lemma Ilsm_Ilam : forall (l n m : nat), 0 < l -> 0 < m ->
   \(I^{l}s)^{m}_:n = (1 + \i)^n * \(I^{l}a)^{m}_:n.
 Proof.
   move => l n m Hlpos Hmpos.
@@ -539,7 +579,7 @@ Proof.
   rewrite /acc_incr //.
 Qed.
 
-Lemma Iam_calc : forall (n m : nat), m > 0 ->
+Lemma Iam_calc : forall (n m : nat), 0 < m ->
  \(Ia)^{m}_:n = \Rsum_(0<=j<n) (j+1)/m * \Rsum_(j*m <= k < (j+1)*m) (\v)^((k+1)/m).
 Proof.
  move => n m Hmpos.
@@ -574,11 +614,11 @@ Proof.
  by[].
 Qed.
 
-Lemma Ism_calc : forall (n m : nat), m > 0 ->
+Lemma Ism_calc : forall (n m : nat), 0 < m ->
  \(Is)^{m}_:n = \Rsum_(0<=j<n) (j+1)/m * \Rsum_(j*m <= k < (j+1)*m) (1+\i)^(n-(k+1)/m).
 Proof.
   move => n m Hmpos.
-  assert (H1pos : 1%N > 0) by (rewrite (_ : INR 1%N = 1) //; lra).
+  have H1pos : 0 < 1%N by (rewrite (_ : INR 1%N = 1) //; lra).
   rewrite Ilsm_Ilam //.
   rewrite Iam_calc //.
   rewrite big_distrr /=.
@@ -594,7 +634,7 @@ Proof.
     by [].
 Qed.
 
-Lemma Imam_calc_aux : forall (n m : nat), m > 0 ->
+Lemma Imam_calc_aux : forall (n m : nat), 0 < m ->
  \(I^{m}a)^{m}_:n = \Rsum_(0 <= k < n*m) (\v)^((k+1)/m) * (k+1) / m^2.
 Proof.
  move => n m Hmpos.
@@ -609,7 +649,7 @@ Proof.
  by[].
 Qed.
 
-Lemma Imam_calc : forall (n m : nat), m > 0 ->
+Lemma Imam_calc : forall (n m : nat), 0 < m ->
   \(I^{m}a)^{m}_:n =
   ((\v)^(/m) * (1 - (n*m+1)*(\v)^n + n*m*(\v)^(n+1/m))) / (m*(1-(\v)^(/m)))^2.
 Proof.
@@ -632,13 +672,13 @@ Proof.
  by rewrite -Rmult_assoc (Rmult_comm (1-(\v)^(/m)) m) -/(Rdiv _ (_^2)).
 Qed.
 
-Lemma Imsm_calc : forall (n m : nat), m > 0 ->
+Lemma Imsm_calc : forall (n m : nat), 0 < m ->
   \(I^{m}s)^{m}_:n =
   ((1+\i)^(n+1/m) - (n*m+1)*(1+\i)^(/m) + n*m) / (m*((1+\i)^(/m)-1))^2.
 Proof.
   move => n m Hmpos.
-  assert (H0 : 0 < 1 - \v ^ (/ m)) by apply /Rgt_minus /lt_vpow_1 /Rinv_0_lt_compat => //.
-  assert (H1 : 0 < m * (1 - \v ^ (/ m))) by apply Rmult_gt_0_compat => //.
+  have H0 : 0 < 1 - \v ^ (/ m) by apply /Rgt_minus /lt_vpow_1 /Rinv_0_lt_compat => //.
+  have H1 : 0 < m * (1 - \v ^ (/ m)) by apply Rmult_gt_0_compat => //.
   rewrite Ilsm_Ilam // Imam_calc //.
   rewrite /Rdiv -!Rmult_assoc.
   rewrite i_v.
@@ -666,7 +706,7 @@ Proof.
   rewrite Rmult_1_l; lra.
 Qed.
       
-Lemma Ila''m_Ilam : forall (l n m : nat), l > 0 -> m > 0 ->
+Lemma Ila''m_Ilam : forall (l n m : nat), 0 < l -> 0 < m ->
  \(I^{l}a'')^{m}_:n = (1 + (\i^{m})/m) * \(I^{l}a)^{m}_:n.
 Proof.
  move => l n m Hlpos Hmpos.
@@ -681,7 +721,7 @@ Proof.
  by[].
 Qed.
 
-Lemma Ia''m_calc : forall (n m : nat), m > 0 ->
+Lemma Ia''m_calc : forall (n m : nat), 0 < m ->
  \(Ia'')^{m}_:n = \Rsum_(0<=j<n) (j+1)/m * \Rsum_(j*m <= k < (j+1)*m) (\v)^(k/m).
 Proof.
  move => n m Hmpos.
@@ -700,7 +740,7 @@ Proof.
  by[].
 Qed.
 
-Lemma Ima''m_calc_aux : forall (n m : nat), m > 0 ->
+Lemma Ima''m_calc_aux : forall (n m : nat), 0 < m ->
  \(I^{m}a'')^{m}_:n = \Rsum_(0 <= k < n*m) (\v)^(k/m) * (k+1) / m^2.
 Proof.
  move => n m Hmpos.
@@ -715,7 +755,7 @@ Proof.
  by[].
 Qed.
 
-Lemma Ima''m_calc : forall (n m : nat), m > 0 ->
+Lemma Ima''m_calc : forall (n m : nat), 0 < m ->
  \(I^{m}a'')^{m}_:n = (1 - (n*m+1)*(\v)^n + n*m*(\v)^(n+1/m)) / (m*(1-(\v)^(/m)))^2.
 Proof.
  move => n m Hmpos.
@@ -724,7 +764,7 @@ Proof.
  by rewrite Rinv_r; try lra; rewrite one_pow Rmult_1_l.
 Qed.
 
-Lemma Ils''m_Ilsm : forall (l n m : nat), l > 0 -> m > 0 ->
+Lemma Ils''m_Ilsm : forall (l n m : nat), 0 < l -> 0 < m ->
  \(I^{l}s'')^{m}_:n = (1 + (\i^{m})/m) * \(I^{l}s)^{m}_:n.
 Proof.
  move => l n m Hlpos Hmpos.
@@ -740,7 +780,7 @@ Proof.
  by[].
 Qed.
 
-Lemma Ims''m_calc : forall (n m : nat), m > 0 ->
+Lemma Ims''m_calc : forall (n m : nat), 0 < m ->
   \(I^{m}s'')^{m}_:n =
   (1+\i)^(/m) * ((1+\i)^(n+1/m) - (n*m+1)*(1+\i)^(/m) + n*m) / (m*((1+\i)^(/m)-1))^2.
 Proof.
@@ -752,11 +792,11 @@ Proof.
   rewrite Imsm_calc; lra.
 Qed.
 
-Lemma lim_Imam : forall m:nat, m > 0 ->
+Lemma lim_Imam : forall m:nat, 0 < m ->
  is_lim_seq (fun n:nat => \(I^{m}a)^{m}_:n) (/(\i^{m} * \d^{m})).
 Proof.
   move => m Hmpos.
-  assert (H_i : \i^{m} = m * ((\v)^(-/m) - 1)).
+  have H_i : \i^{m} = m * ((\v)^(-/m) - 1).
   by rewrite /i_nom i_v Rpower_mult -Ropp_mult_distr_l Rmult_1_l.
   rewrite -(Rmult_1_l (/ _)) -/(Rdiv 1 _).
   apply (is_lim_seq_ext
@@ -812,7 +852,7 @@ Proof.
 Qed.
 
 Lemma perp_incr_calc :
-  forall m:nat, m > 0 -> \(I^{m}a)^{m}_:(p_infty) = / ((\i^{m}) * (\d^{m})).
+  forall m:nat, 0 < m -> \(I^{m}a)^{m}_:(p_infty) = / ((\i^{m}) * (\d^{m})).
 Proof.
   move => m Hmpos.
   apply is_lim_seq_unique.
@@ -820,7 +860,7 @@ Proof.
 Qed.
 
 Lemma lim_Ima''m : forall m:nat,
-    m > 0 -> is_lim_seq (fun n:nat => \(I^{m}a'')^{m}_:n) (/(\d^{m})^2).
+  0 < m -> is_lim_seq (fun n:nat => \(I^{m}a'')^{m}_:n) (/(\d^{m})^2).
 Proof.
   move => m Hmpos.
   apply (is_lim_seq_ext (fun n:nat => (/(\v)^(/m) * \(I^{m}a)^{m}_:n))).
@@ -837,4 +877,3 @@ Proof.
 Qed.
 
 End Interest.
-
