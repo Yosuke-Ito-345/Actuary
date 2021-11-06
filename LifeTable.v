@@ -755,12 +755,11 @@ Proof.
   apply False_ind.
   set (K := (fun u:R => \l_u = 0)).
   have HpsiCK : (complementary K) \ψ by [].
-  have HKclosed : closed_set K.
+  have : closed_set K.
   { rewrite (_ : K = image_rec l (eq^~ 0)) //.
     apply continuity_closed; [apply eq_R_continuous; auto |].
     apply Rsingleton_closed. }
-  rewrite /closed_set in HKclosed.
-  apply open_set_P1 in HKclosed.
+  apply/open_set_P1 => HKclosed.
   have HpsiNBH : neighbourhood (complementary K) \ψ
     by rewrite -/(interior _ \ψ); apply HKclosed.
   rewrite /neighbourhood in HpsiNBH.
