@@ -1,5 +1,8 @@
 -Q . Actuary
 
+-arg -w -arg -notation-overridden
+-arg -w -arg -ambiguous-paths
+
 all_Actuary.v
 Basics.v
 Examples.v
