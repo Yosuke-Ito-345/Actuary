@@ -206,3 +206,66 @@ Proof.
 Qed.
 
 End Example3.
+
+Section Example4.
+
+(* In this section, we consider verifying a problem of life insurance mathematics. *)
+
+(* Problem 1 (3). *)
+(* (Life Insurance Mathematics, 2019, the Institute of Actuaries of Japan.) *)
+(* Suppose \A_x = 0.8499, \A_(x+1) = 0.8573, \i = 0.015. *)
+(* Then select the value closest to \p_x among the alternatives. *)
+(* (A) 0.9610  (B) 0.9613  (C) 0.9616  (D) 0.9619  (E) 0.9622 *)
+(* (F) 0.9625  (G) 0.9628  (H) 0.9631  (I) 0.9634  (J) 0.9637 *)
+
+Variable i:R.
+Hypothesis i_pos : 0 < i.
+
+Variable l:life.
+Hypothesis l_fin : (l_finite l).
+
+Notation "\i" := (\i[i]) (at level 9).
+Notation "\v" := (\v[i]) (at level 9).
+Notation "\l_ u" := (\l[l]_u) (at level 9). 
+Notation "\p_ u" := (\p[l]_{1&u}) (at level 9).
+Notation "\q_{ f | t & u }" := (\q[l]_{f|t&u}) (at level 9).
+Notation "\q_ u" := (\q_{0|1 & u}) (at level 9).
+Notation "\ω" := (\ω[l,l_fin]) (at level 8).
+Notation "\A_ x" := (\A[i,l,l_fin]_x) (at level 9).
+
+(* Theorem Exam_2019_1_3_evil : forall x:nat, x+1 < \ω -> *)
+(*   \A_x = 0.8499 -> \A_(x+1) = 0.8573 -> \i = 0.015 -> 0.96235 < \p_x < 0.96265. *)
+(* Proof. *)
+(*   move => x Hx HAx HAx1 Hi. *)
+(*   have Hpx : \p_x = (1 - (1+\i)*\A_x) / (1 - \A_(x+1)). *)
+(*   { move: (ins_whole_rec \i i_pos l l_fin x Hx). *)
+(*     rewrite (_ : \q_{0|1&x} = 1 - \p_x); *)
+(*       [| rewrite -{2}(p_q_1 l 1 x); [lra | apply /pos_neq0 /l_x_pos; lra]]. *)
+(*     rewrite /v_pres => ->; field; lra. } *)
+(*   rewrite Hpx HAx HAx1 Hi; lra. *)
+(* Qed. *)
+(* WARNING *)
+(* I do not recommend this kind of proof. *)
+(* Since the values of the assumptions are merely approximations, *)
+(* there may be contradictions in a strict sense. *)
+(* In such case, you may prove wrong statements unintentionally. *)
+
+Lemma Exam_2019_1_3_aux : forall x:nat, x+1 < \ω -> \A_(x+1) < 1 ->
+  \p_x = (1 - (1+\i)*\A_x) / (1 - \A_(x+1)).
+Proof.
+  move => x Hx HAx1.
+  move: (ins_whole_rec \i i_pos l l_fin x Hx).
+  rewrite (_ : \q_{0|1&x} = 1 - \p_x);
+    [| rewrite -{2}(p_q_1 l 1 x); [lra | apply /pos_neq0 /l_x_pos; lra]].
+  rewrite /v_pres => ->; field; lra.
+Qed.
+
+Theorem Exam_2019_1_3 : forall AX AX1 I PX : R, AX1 < 1 -> PX = (1 - (1+I)*AX) / (1 - AX1) ->
+  AX = 0.8499 -> AX1 = 0.8573 -> I = 0.015 -> 0.96235 < PX < 0.96265.
+Proof.
+  move => AX AX1 I PX HltAX1 HPX HAX HAX1 HI.
+  rewrite HPX HI HAX HAX1; lra.
+Qed.
+
+End Example4.
+
