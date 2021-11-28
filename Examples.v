@@ -218,7 +218,9 @@ Section Example4.
 (* Then select the value closest to \p_x among the alternatives. *)
 (* (A) 0.9610  (B) 0.9613  (C) 0.9616  (D) 0.9619  (E) 0.9622 *)
 (* (F) 0.9625  (G) 0.9628  (H) 0.9631  (I) 0.9634  (J) 0.9637 *)
-
+(* Solution. *)
+(* (F) *)
+  
 Variable i:R.
 Hypothesis i_pos : 0 < i.
 
