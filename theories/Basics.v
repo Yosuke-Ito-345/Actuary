@@ -13,7 +13,7 @@ Qed.
 
 Lemma iota_rcons : forall (m n : nat), rcons (iota m n) (m+n) = iota m (n+1).
 Proof.
- by move => m n; rewrite -(cats0 (rcons _ _)) cat_rcons iota_add.
+ by move => m n; rewrite -(cats0 (rcons _ _)) cat_rcons iotaD.
 Qed.
 
 Lemma iota_pttn : forall (n m : nat),
@@ -21,7 +21,7 @@ Lemma iota_pttn : forall (n m : nat),
 Proof.
  move => n; elim n => [// | p IHp].
  move => m.
- rewrite mulSn addnC iota_add add0n.
+ rewrite mulSn addnC iotaD add0n.
  rewrite -IHp.
  rewrite -flatten_rcons -(map_id (iota (p*m) m)) -map_rcons.
  by rewrite iota_rcons addn1.

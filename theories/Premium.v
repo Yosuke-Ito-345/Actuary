@@ -514,7 +514,7 @@ Proof.
       rewrite -Ropp_mult_distr_l -/(Rdiv _ m) -/(Rminus _ (k/m)).
       over.
     - rewrite add0n.
-      apply /lt_le_S /ltP.
+      apply /Nat.le_succ_l /ltP.
       move: Hk => /andP; intuition. }
     by [].
 Qed.
@@ -553,7 +553,7 @@ Proof.
       rewrite Rdiv_plus_distr (Rmult_comm m n) /Rdiv Rinv_r_simpl_l; auto.
       rewrite /= -Ropp_mult_distr_l -/(Rdiv _ m) -/(Rminus _ (_ / _)).
       over.
-    - apply /lt_le_S /ltP.
+    - apply /Nat.le_succ_l /ltP.
       move: Hk => /andP; intuition. }
     by [].
 Qed.
@@ -571,7 +571,7 @@ Proof.
   have Hn' : (0 < n)%coq_nat by (apply INR_lt => //).
   have Hm' : (0 < m)%coq_nat by (apply INR_lt => //).
   rewrite /life_ann_due.
-  rewrite (S_pred (m*n) 0); [| rewrite /muln /muln_rec; lia].
+  rewrite -(Nat.lt_succ_pred 0 (m*n)); [| rewrite /muln /muln_rec; lia].
   rewrite big_nat_recl; [| apply /leP; lia].
   rewrite {1 2}/Rdiv Rmult_0_l.
   rewrite Rpower_O; [| apply /v_pos /i_pos]; rewrite p_0_1 // Rmult_1_r.
@@ -663,10 +663,10 @@ Lemma ann_due_1_imm : forall (x n : nat), x < \ω -> 0 < n -> \a''_{x:n} = 1 + \
 Proof.
   move => x n Hx Hn.
   rewrite ann_annual ann_due_annual.
-  rewrite {1}(S_pred n 0); [| apply INR_lt => //].
+  rewrite -{1}(Nat.lt_succ_pred 0 n); [| apply INR_lt => //].
   rewrite big_nat_recl //.
   rewrite Rpower_O; [| apply /v_pos /i_pos]; rewrite p_0_1 // Rmult_1_r.
-  rewrite pred_of_minus -SSR_minus.
+  rewrite -Nat.sub_1_r -SSR_minus.
     by under eq_big_nat => k Hk do rewrite S_INR.
 Qed.
 
@@ -683,14 +683,14 @@ Proof.
     rewrite Rpower_O; [| apply /v_pos /i_pos]; rewrite p_0_1; lra.
   - have Hmn : (0 < m * n)%coq_nat
       by apply /ltP; rewrite muln_gt0; apply /andP; split; apply /ltP.
-    rewrite {2}(S_pred (m*n) 0) //.
+    rewrite -{2}(Nat.lt_succ_pred 0 (m*n)) //.
     rewrite big_nat_recl; [| apply /leP; lia].
     rewrite /(Rdiv 0) Rmult_0_l.
     rewrite Rpower_O; [| apply /v_pos /i_pos]; rewrite p_0_1 // Rmult_1_r.
     rewrite (Rplus_comm 1) Ropp_r_simpl_l.
-    rewrite [in LHS](S_pred (m*n) 0) //.
+    rewrite -[in LHS](Nat.lt_succ_pred 0 (m*n)) //.
     rewrite (_ : \v^n * \p_{n&x} = (\v^(((m*n).-1.+1)/m) * \p_{((m*n).-1.+1)/m&x}));
-      [|rewrite -(S_pred _ 0) // mulnC mult_INR /Rdiv Rinv_r_simpl_l; auto].
+      [|rewrite (Nat.lt_succ_pred 0) // mulnC mult_INR /Rdiv Rinv_r_simpl_l; auto].
     rewrite -(big_nat_recr _ _ _ ); [| apply /leP; lia].
       by under eq_big_nat => k Hk do [rewrite (_ : 1 = 1%N) // -plus_INR Nat.add_1_r].
 Qed.
@@ -807,7 +807,7 @@ Proof.
         !Rmult_opp1_l -Rplus_assoc (Rplus_assoc x n) Rplus_opp_r Rplus_0_r Ropp_involutive.
       rewrite -Nat.add_1_r plus_INR /= -/(Rdiv _ m).
       over.
-    - apply /lt_le_S /ltP.
+    - apply /Nat.le_succ_l /ltP.
       move: Hk => /andP; intuition. }
     by [].
 Qed.
@@ -964,7 +964,7 @@ Proof.
   move => x n Hxn Hn.
   rewrite acc_annual acc_due_annual.
   rewrite {1}(_ : n = (n-1).+1);
-    [| rewrite SSR_minus -pred_of_minus -(S_pred _ 0) //;
+    [| rewrite SSR_minus Nat.sub_1_r (Nat.lt_succ_pred 0) //;
          apply INR_lt; rewrite (_ : INR 0%N = 0) //].
   rewrite big_nat_recl; [| apply /leP; move: Hn => /(INR_lt 0); lia].
   rewrite Rpower_O ?Rmult_1_l; auto.
@@ -985,7 +985,7 @@ Proof.
   have Hn' : (0 < n)%coq_nat by apply INR_lt.
   rewrite acc_due_annual.
   rewrite {1}(_ : n = (n-1).+1);
-    [| rewrite SSR_minus -pred_of_minus -(S_pred _ 0) //;
+    [| rewrite SSR_minus Nat.sub_1_r (Nat.lt_succ_pred 0) //;
          apply INR_lt; rewrite (_ : INR 0%N = 0) //].
   rewrite big_nat_recr /=; [| apply /leP; lia].
   rewrite (_ : (n-1)%N+1 = n); [| rewrite minus_INR /=; [lra | lia]].

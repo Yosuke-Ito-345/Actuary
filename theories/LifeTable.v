@@ -293,9 +293,9 @@ Hint Resolve psi_finite : core.
 Lemma omega_pos : 0 < \ω.
 Proof.
   rewrite -Nat2Z.inj_0; apply Rlt_gt; rewrite -INR_IZR_INZ; apply lt_INR.
-  apply neq_0_lt => Homega0.
+  apply Nat.neq_0_lt_0 => Homega0.
   apply (Rlt_irrefl \l_\ω).
-  rewrite {1}l_omega_0  -Homega0.
+  rewrite {1}l_omega_0  Homega0.
   apply l_0_pos.
 Qed.
 
@@ -447,7 +447,7 @@ Proof.
     rewrite 2!big_split /=.
     rewrite -(Rplus_0_r (\Rsum_(0 <= i < \ω-x) i * \p_{i&x})).
     rewrite -{2}(Rmult_0_r (\ω-x)) -{2}(p_omega_0 x).
-    rewrite -(minus_INR \ω x); [| apply /Nat.lt_le_incl /lt_O_minus_lt; rewrite /lt //].
+    rewrite -(minus_INR \ω x); [| apply /Nat.lt_le_incl /(Nat.lt_add_lt_sub_r 0); rewrite /lt //].
     rewrite -(big_nat_recr (\ω-x) 0) /= ; [| rewrite /leP //].
     rewrite big_nat_recl //.
     rewrite Rmult_0_l Rplus_0_l.
@@ -475,7 +475,7 @@ Proof.
       - rewrite S_INR.
         over.
       - rewrite -(plus_INR x 1).
-        apply /pos_neq0 /l_x_pos /lt_INR /lt_O_minus_lt.
+        apply /pos_neq0 /l_x_pos /lt_INR /(Nat.lt_add_lt_sub_r 0).
         rewrite Nat.sub_add_distr.
         apply lt_minus_O_lt.
         move /ltP in Halive1.
@@ -483,15 +483,15 @@ Proof.
     rewrite -big_distrr.
     rewrite -{1}(Rmult_1_r (\p_x)).
     rewrite -Rmult_plus_distr_l.
-      by rewrite pred_of_minus -SSR_minus -subnDA e_p plus_INR.
-  - apply lt_n_Sm_le in Hdead.
+      by rewrite -Nat.sub_1_r -SSR_minus -subnDA e_p plus_INR.
+  - apply (Nat.lt_succ_r (\ω - x)) in Hdead.
     apply Nat.le_1_r in Hdead.
     destruct Hdead as [H0 | H1].
     + rewrite H0.
       rewrite big_geq //.
       rewrite (p_old_0 x 1); [rewrite Rmult_0_l // |].
       apply Nat.sub_0_le in H0.
-      rewrite -plus_INR; apply /le_INR /(le_trans _ x) => //; lia.
+      rewrite -plus_INR; apply /le_INR /(Nat.le_trans _ x) => //; lia.
     + rewrite H1.
       rewrite big_nat1 Rplus_0_l.
       rewrite e_p subnDA H1 SSR_minus Nat.sub_diag.

@@ -602,7 +602,7 @@ Proof.
     rewrite -(Rinv_r_simpl_l m j) /Rdiv; [| apply /pos_neq0 /Hmpos];
     apply Rmult_lt_compat_r; [apply Rinv_0_lt_compat => // | ].
     rewrite -(plus_INR _ 1) -mult_INR;
-    apply lt_INR; rewrite Nat.add_1_r; apply le_lt_n_Sm; case: (andP Hk) => /leP //.
+    apply lt_INR; rewrite Nat.add_1_r; apply Nat.lt_succ_r; case: (andP Hk) => /leP //.
    rewrite -(Rinv_r_simpl_l m (_ + _)%Z) /Rdiv; [| apply /pos_neq0 /Hmpos];
    apply Rmult_le_compat_r; [by apply /Rlt_le /Rinv_0_lt_compat |].
    rewrite plus_IZR -INR_IZR_INZ -!S_INR -mult_INR; apply le_INR; rewrite -/(lt k _).
