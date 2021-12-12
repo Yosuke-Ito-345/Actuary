@@ -1,12 +1,12 @@
--Q . Actuary
+-Q theories Actuary
 
 -arg -w -arg -notation-overridden
 -arg -w -arg -ambiguous-paths
 
-all_Actuary.v
-Basics.v
-Examples.v
-Interest.v
-LifeTable.v
-Premium.v
-Reserve.v
+theories/all_Actuary.v
+theories/Basics.v
+theories/Examples.v
+theories/Interest.v
+theories/LifeTable.v
+theories/Premium.v
+theories/Reserve.v
