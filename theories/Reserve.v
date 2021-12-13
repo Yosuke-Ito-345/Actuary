@@ -298,8 +298,8 @@ Proof.
   rewrite res_endow_prem_ann_due //.
   rewrite (_ : \P^{m}_{x:n} + \d^{m} = /(\a''^{m}_{x:n})); [lra |].
   rewrite prem_endow_ann_due_d //; [lra |].
-  apply lt_INR; move: Hx' => /INR_lt; apply le_lt_trans.
-  rewrite -{1}(addn0 x); apply plus_le_compat_l; lia.
+  apply lt_INR; move: Hx' => /INR_lt; apply Nat.le_lt_trans.
+  rewrite -{1}(addn0 x); apply Nat.add_le_mono_l; lia.
 Qed.
   
 Lemma res_endow_ins_endow : forall m t x n : nat, 0 < m -> x+t < \ω -> 0 < n ->
@@ -308,8 +308,8 @@ Proof.
   move => m t x n Hm Hxt Hn.
   have Hxt' : (x+t)%N < \ω by rewrite plus_INR //.
   have Hx : x < \ω.
-  { apply lt_INR; move: Hxt' => /INR_lt; apply le_lt_trans.
-    rewrite -{1}(addn0 x); apply plus_le_compat_l; lia. }
+  { apply lt_INR; move: Hxt' => /INR_lt; apply Nat.le_lt_trans.
+    rewrite -{1}(addn0 x); apply Nat.add_le_mono_l; lia. }
   have Hd : \d^{m} <> 0 by apply /pos_neq0 /d_nom_pos => //=; lra.
   have Ha'' : \a''^{m}_{x:n} <> 0
     by  apply pos_neq0; eapply Rlt_le_trans;
@@ -330,8 +330,8 @@ Proof.
   move => m t x n Hm Htn Hxt Hn.
   have Hxt' : (x+t)%N < \ω by rewrite plus_INR //.
   have Hx : x < \ω.
-  { apply lt_INR; move: Hxt' => /INR_lt; apply le_lt_trans.
-    rewrite -{1}(addn0 x); apply plus_le_compat_l; lia. }
+  { apply lt_INR; move: Hxt' => /INR_lt; apply Nat.le_lt_trans.
+    rewrite -{1}(addn0 x); apply Nat.add_le_mono_l; lia. }
   have Htn' :  0 < (n - t)%N
     by rewrite SSR_minus minus_INR; [lra | apply INR_le; lra].
   have Ha'' : \a''^{m}_{ (x + t) : n - t} <> 0

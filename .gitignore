@@ -12,3 +12,4 @@ _build
 .lia.cache
 .nia.cache
 .nra.cache
+.coq-native/
