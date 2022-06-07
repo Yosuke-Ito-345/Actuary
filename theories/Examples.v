@@ -250,3 +250,51 @@ Qed.
 
 End Example4.
 
+Section Example5.
+
+(* In this section, we consider verifying the formula of a gross premium. *)
+
+Variable i:R.
+Hypothesis i_pos : 0 < i.
+
+Variable l:life.
+Hypothesis l_fin : (l_finite l).
+
+Notation "\i" := (\i[i]) (at level 9).
+Notation "\v" := (\v[i]) (at level 9).
+Notation "\ω" := (\ω[l,l_fin]) (at level 8).
+Notation "\A_{ x : n }" := (\A[i,l]_{x:n}) (at level 9, x at level 9).
+Notation "\a''_{ x : n }" := (\a''[i,l]_{x:n}) (at level 9, x at level 9).
+
+(* initial expense *)
+(* The expense α per unit insurance amount is paid at the beginning of the first year. *)
+Variable α:R.
+Hypothesis alpha_pos : 0 < α.
+
+(* collection expense *)
+(* The expense β per unit premium is paid at the beginning of each year. *)
+Variable β:R.
+Hypothesis beta_in_0_1 : 0 < β < 1.
+
+(* maintenance expense *)
+(* The expense γ per unit insurance amount is paid at the beginning of each year. *)
+Variable γ:R.
+Hypothesis gamma_pos : 0 < γ.
+
+(* annual gross premium of an endowment life insurance *)
+Definition gross_prem_endow_life_annual (x n : nat) :=
+  (\A_{x:n} + α + γ * \a''_{x:n}) / ((1-β) * \a''_{x:n}).
+Notation "\Pstar_{ x : n }" := (gross_prem_endow_life_annual x n) (at level 9, x at level 9).
+
+(* Verify that the gross premium satisfies the equivalence principle. *)
+Theorem gross_prem_endow_life_annual_correct : forall x n : nat, x < \ω -> 0 < n ->
+  \Pstar_{x:n} * \a''_{x:n} = \A_{x:n} + α + (\Pstar_{x:n}*β + γ) * \a''_{x:n}.
+Proof.
+  move => x n Hx Hn.
+  rewrite /gross_prem_endow_life_annual.
+  field; split; [| lra].
+  apply pos_neq0; eapply Rlt_le_trans;
+    [| apply (ann_due_lb _ i_pos _ l_fin)]; first apply Rinv_0_lt_compat; auto.
+Qed.
+
+End Example5.
