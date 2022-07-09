@@ -5,7 +5,7 @@ This is an experimental package where the basic part of actuarial mathematics is
 ## Requirements
 
 - [Coq 8.13](https://coq.inria.fr/download) or later
-- [Mathematical Components 1.12.0](https://math-comp.github.io) or later
+- [Mathematical Components 1.15.0](https://math-comp.github.io) or later
 - [Coquelicot 3.1.0](https://gitlab.inria.fr/coquelicot/coquelicot) or later
 
 ## Building and installation instructions
