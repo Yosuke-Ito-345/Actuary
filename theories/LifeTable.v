@@ -304,7 +304,7 @@ Hint Resolve omega_pos : core.
 Lemma le_psi_omega : Rbar_le \ψ \ω.
 Proof.
   apply Rbar_not_lt_le.
-  apply (contra_not (\l_\ω > 0)); [apply l_u_pos |].
+  apply (contra_not (l_u_pos \ω)).
   rewrite l_omega_0; lra.
 Qed.
 
