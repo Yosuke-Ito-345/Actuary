@@ -214,8 +214,7 @@ Proof.
   move => n.
   rewrite {3}plus_INR /Rpower -/i_force.
   rewrite -(Rinv_r_simpl_m \δ (n+1)); auto.
-  rewrite (Rmult_assoc \δ _) -/(Rdiv _ \δ) -(Rinv_Rdiv \δ (n+1));
-  [| auto | apply (pos_neq0 (INRp1_pos n))].
+  rewrite (Rmult_assoc \δ _) -/(Rdiv _ \δ) -(Rinv_div \δ (n+1)).
   rewrite Rmult_assoc (Rmult_comm (/_) _) -/(Rdiv _ (_ /_)) -(plus_INR n 1).
   by rewrite {5}/Rdiv (Rmult_comm _ \δ) -/(Rdiv \δ _).
  rewrite -(Rbar_mult_1_r \δ).
@@ -251,8 +250,8 @@ Proof.
  rewrite -(Rmult_1_l (/ _)) {1}(Rinv_r_sym (1 + \i^{m} / m));
  [rewrite -RIneq.Rdiv_minus_distr | lra].
  rewrite Rplus_comm /Rminus Rplus_assoc Rplus_opp_r Rplus_0_r /d_nom /Rdiv Rmult_assoc
- -Rinv_mult_distr; try lra.
- rewrite (Rmult_comm (1+_)) Rinv_mult_distr; try lra.
+ -Rinv_mult; try lra.
+ rewrite (Rmult_comm (1+_)) Rinv_mult; try lra.
  by rewrite -Rmult_assoc Rplus_comm.
 Qed.
 
@@ -346,7 +345,7 @@ Proof.
   move => m Hmpos.
   rewrite /d_nom.
   rewrite i_nom_i // i_v Rpower_mult -(Ropp_mult_distr_l) Rmult_1_l /Rdiv Rpower_Ropp.
-    by rewrite Rinv_involutive; [| apply /pos_neq0 /exp_pos].
+    by rewrite Rinv_inv.
 Qed.
 
 Lemma a_calc : forall (n m : nat), 0 < m -> \a^{m}_:n = (1 - (\v)^n) / (\i^{m}).
@@ -366,10 +365,8 @@ Proof.
  [| apply exp_pos
  | apply /Rlt_not_eq /lt_vpow_1 /Rinv_0_lt_compat => //].
  rewrite Rpower_mult mult_INR (Rmult_comm _ (n*m)) Rinv_r_simpl_l; [| lra].
- rewrite -/(Rdiv _ m) -(Rinv_Rdiv _ ((\v)^(/m))); [| lra | apply /pos_neq0 /exp_pos].
- rewrite /Rdiv Rmult_assoc -Rinv_mult_distr;
- [| apply /Rminus_eq_contra /Rgt_not_eq /lt_vpow_1 /Rinv_0_lt_compat => //
- | apply /pos_neq0 /Rmult_gt_0_compat => //; apply /Rinv_0_lt_compat /exp_pos].
+ rewrite -/(Rdiv _ m) -(Rinv_div _ ((\v)^(/m))).
+ rewrite /Rdiv Rmult_assoc -Rinv_mult.
  rewrite (Rmult_comm m _) -Rmult_assoc -/(Rdiv _ ((\v)^(/m))) RIneq.Rdiv_minus_distr.
  rewrite /Rdiv Rinv_r; [| apply /pos_neq0 /exp_pos].
  rewrite Rmult_1_l -Rpower_Ropp {2}/v_pres -Rpower_Ropp'; [| lra]; rewrite Ropp_involutive.
@@ -428,10 +425,8 @@ Lemma a''_calc : forall (n m : nat), 0 < m -> \a''^{m}_:n = (1 - (\v)^n) / \d^{m
 Proof.
  move => n m Hmpos.
  rewrite a''_a //; rewrite a_calc //.
- rewrite -(Rinv_involutive (1 + \i^{m} / m)); [| apply /pos_neq0 /i_nom_add_pos => //].
- rewrite Rmult_comm {1}/Rdiv Rmult_assoc -/Rdiv -Rinv_mult_distr;
-   [| apply /pos_neq0 /i_nom_pos => // |
-    apply /Rinv_neq_0_compat /pos_neq0 /i_nom_add_pos => //].
+ rewrite -(Rinv_inv (1 + \i^{m} / m)).
+ rewrite Rmult_comm {1}/Rdiv Rmult_assoc -/Rdiv -Rinv_mult.
  by[].
 Qed.
 
@@ -459,10 +454,8 @@ Lemma s''_calc : forall (n m : nat), 0 < m -> \s''^{m}_:n = ((1+\i)^n - 1) / \d^
 Proof.
   move => n m Hmpos.
   rewrite s''_s //; rewrite s_calc //.
-  rewrite -(Rinv_involutive (1 + \i^{m} / m)); [| apply /pos_neq0 /i_nom_add_pos => //].
-  rewrite Rmult_comm {1}/Rdiv Rmult_assoc -/Rdiv -Rinv_mult_distr;
-    [| apply /pos_neq0 /i_nom_pos => // |
-     apply /Rinv_neq_0_compat /pos_neq0 /i_nom_add_pos => //].
+  rewrite -(Rinv_inv (1 + \i^{m} / m)).
+  rewrite Rmult_comm {1}/Rdiv Rmult_assoc -/Rdiv -Rinv_mult.
     by[].
 Qed.
 
@@ -667,7 +660,7 @@ Proof.
  rewrite mult_INR !Rpower_mult.
  rewrite 2!(Rmult_comm (/m)) (Rmult_plus_distr_r _ _ (/m))
  Rinv_r_simpl_l; [| apply pos_neq0 => //].
- rewrite {1}/Rdiv 2!Rmult_assoc -Rinv_mult_distr; try apply /pos_neq0 /exp_pos.
+ rewrite {1}/Rdiv 2!Rmult_assoc -Rinv_mult; try apply /pos_neq0 /exp_pos.
  rewrite Rpower_mult_distr; [| apply /Rgt_minus /lt_vpow_1 /Rinv_0_lt_compat => // | done].
  by rewrite -Rmult_assoc (Rmult_comm (1-(\v)^(/m)) m) -/(Rdiv _ (_^2)).
 Qed.
@@ -688,7 +681,7 @@ Proof.
           -Rmult_plus_distr_r Rplus_opp_l Rmult_0_l Rpower_O; [| apply /v_pos]].
   rewrite -Rmult_assoc (Rmult_comm m (\v ^ _)) (Rmult_assoc (\v ^ _) m).
   rewrite -(Rpower_mult_distr (\v ^ (-1 * / m)) _ 2) //; [| apply exp_pos].
-  rewrite Rinv_mult_distr; try apply pos_neq0; try apply exp_pos.
+  rewrite Rinv_mult; try apply pos_neq0; try apply exp_pos.
   rewrite Rpower_mult -Rmult_assoc.
   rewrite (_ : / \v ^ (-1 * / m * 2) = \v ^ (2 */ m));
     [| rewrite -Rpower_Ropp -Ropp_mult_distr_l Rmult_1_l
@@ -837,7 +830,7 @@ Proof.
   - rewrite /is_Rbar_div /is_Rbar_mult /= Rmult_1_r.
     rewrite {1}(_ : (\v)^(/m) = /((\v)^(-/m)));
       [| by rewrite -{1}(Ropp_involutive (/m)) (Rpower_Ropp \v (-/m))].
-    rewrite -Rinv_mult_distr; try apply /pos_neq0 /exp_pos.
+    rewrite -Rinv_mult; try apply /pos_neq0 /exp_pos.
     rewrite Rpower_2;
       [| apply Rmult_gt_0_compat => //; apply /Rgt_minus /lt_vpow_1 /Rinv_0_lt_compat => //].
     rewrite -3!Rmult_assoc (Rmult_comm (\v ^ _) m) (Rmult_assoc m (\v ^ _)).
@@ -869,9 +862,7 @@ Proof.
       by rewrite i_nom_i // i_v Rpower_mult -Ropp_mult_distr_l Rmult_1_l Rpower_Ropp.    
   - rewrite Rpower_2; [| apply d_nom_pos => //].
     rewrite {1}d_nom_i_nom_v // (Rmult_comm _ (\v ^ _)) Rmult_assoc.
-    rewrite Rinv_mult_distr;
-      [| apply /pos_neq0 /exp_pos |
-       apply /pos_neq0 /Rmult_gt_0_compat; [apply i_nom_pos | apply d_nom_pos] => //].
+    rewrite Rinv_mult.
     apply (is_lim_seq_scal_l _ _ (/ (\i^{m} * \d^{m}))).
     apply lim_Imam => //.
 Qed.

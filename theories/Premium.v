@@ -880,7 +880,7 @@ Proof.
     { rewrite /survive.
       apply /pos_neq0 /Rdiv_lt_0_compat; auto.
       rewrite /Rminus !Rplus_assoc Rplus_opp_l Rplus_0_r //. }
-    rewrite Rinv_mult_distr //; [| apply /pos_neq0 /exp_pos].
+    rewrite Rinv_mult.
     rewrite Rmult_assoc (Rmult_comm _ (/ _ * / _)) -3!Rmult_assoc Rmult_assoc
       (Rmult_comm \p_{_&_}) -Rmult_assoc (Rmult_assoc _ (/ \p_{_&_}) (\p_{_&_}))
       Rinv_l ?Rmult_1_r; auto.
@@ -916,7 +916,7 @@ Proof.
     { rewrite /survive.
       apply /pos_neq0 /Rdiv_lt_0_compat; auto.
       rewrite /Rminus !Rplus_assoc Rplus_opp_l Rplus_0_r //. }
-    rewrite Rinv_mult_distr //; [| apply /pos_neq0 /exp_pos].
+    rewrite Rinv_mult.
     rewrite Rmult_assoc (Rmult_comm _ (/ _ * / _)) -3!Rmult_assoc Rmult_assoc
       (Rmult_comm \p_{_&_}) -Rmult_assoc (Rmult_assoc _ (/ \p_{_&_}) (\p_{_&_}))
       Rinv_l ?Rmult_1_r; auto.
@@ -947,14 +947,13 @@ Proof.
     2:{ rewrite /Rminus Rplus_assoc Rplus_opp_l Rplus_0_r -plus_INR.
         apply /pos_neq0 /l_x_pos.
         rewrite plus_INR; lra. }
-    rewrite Rinv_mult_distr ?Hxnkk;
-      [| apply /pos_neq0 /exp_pos | by apply Rmult_integral_contrapositive_currified].
-    rewrite Rinv_mult_distr // -Rmult_assoc (Rmult_assoc \v) (Rmult_comm \p_(x+n))
+    rewrite Rinv_mult ?Hxnkk.
+    rewrite Rinv_mult // -Rmult_assoc (Rmult_assoc \v) (Rmult_comm \p_(x+n))
       -(Rmult_assoc \v) Rmult_assoc (Rmult_comm (/ _)) -(Rmult_assoc \p_(x+n)) Rinv_r //
       Rmult_1_l.
     rewrite -Rpower_Ropp -{1}(Rpower_1 \v); auto.
     rewrite -Rpower_plus Ropp_plus_distr (Rplus_comm 1) Rplus_assoc Rplus_opp_l Rplus_0_r.
-    rewrite Rpower_Ropp -Rinv_mult_distr //; [| apply /pos_neq0 /exp_pos].
+    rewrite Rpower_Ropp -Rinv_mult.
     over. }
     by rewrite acc_annual.
 Qed.
@@ -1080,7 +1079,7 @@ Proof.
       apply Rdiv_lt_0_compat; auto.
       by rewrite (_ : x + k / m + (t - k / m) = x + t); [| lra]. }
     rewrite /ins_pure_endow_life.
-    rewrite Rinv_mult_distr; [| apply /pos_neq0 /exp_pos | auto].
+    rewrite Rinv_mult.
     rewrite -Rmult_assoc (Rmult_assoc _ _ (\v^t)) (Rmult_comm _ (\v^t))
       -Rmult_assoc Rmult_assoc.
     rewrite -Rpower_Ropp -Rpower_plus (_ : - (t - k / m) + t = k/m); [| lra].
@@ -1291,7 +1290,7 @@ Proof.
           rewrite /N.
           rewrite INR_Ztonat_IZR; by [| apply le_0_IZR; lra].
         + rewrite /N /=.
-          rewrite -{2}(Rinv_involutive delta); auto.
+          rewrite -{2}(Rinv_inv delta); auto.
           rewrite /Rdiv Rmult_1_l.
           apply Rinv_le_contravar; auto; [by apply Rinv_0_lt_compat |].
           rewrite INR_Ztonat_IZR; [apply ceil_correct | apply le_0_IZR; lra]. }
@@ -1749,7 +1748,7 @@ Proof.
   rewrite -(Rmult_assoc _ (-1)) (Rmult_comm \A_{_:_`1})
                                 Rmult_opp1_l Ropp_mult_distr_l Ropp_involutive.
   rewrite /ins_pure_endow_life.
-  rewrite Rinv_mult_distr; [| apply /pos_neq0 /exp_pos | done].
+  rewrite Rinv_mult.
   rewrite -(Rmult_assoc (\v^n*\p_{n&u})) (Rmult_assoc (\v^n)).
   rewrite (Rmult_comm \p_{n&u}) -Rmult_assoc Rmult_assoc.
   rewrite -Rpower_Ropp -Rpower_plus (_ : n+-(n-t) = t); [| lra].

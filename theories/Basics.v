@@ -135,35 +135,35 @@ Proof.
  move => x; apply (Rgt_not_eq x 0).
 Qed.
 
-Hint Resolve pos_neq0 : core.
+#[export]Hint Resolve pos_neq0 : core.
 
 Lemma neg_neq0 : forall x:R, x < 0 -> x <> 0.
 Proof.
  move => x; apply (Rlt_not_eq x 0).
 Qed.
 
-Hint Resolve neg_neq0 : core.
+#[export]Hint Resolve neg_neq0 : core.
 
 Lemma Sn_pos : forall n:nat, 0 < INR (n + 1).
 Proof.
  move => n; rewrite plus_INR; apply INRp1_pos.
 Qed.
 
-Hint Resolve Sn_pos : core.
+#[export]Hint Resolve Sn_pos : core.
 
 Lemma INR1_pos : 0 < INR 1.
 Proof.
  by rewrite -(add0n 1%N).
 Qed.
 
-Hint Resolve INR1_pos : core.
+#[export]Hint Resolve INR1_pos : core.
 
 Lemma Sn_neq0 : forall n:nat, INR (n + 1) <> 0.
 Proof.
  move => n; auto.
 Qed.
 
-Hint Resolve Sn_neq0 : core.
+#[export]Hint Resolve Sn_neq0 : core.
 
 Lemma one_pow : forall r:R, 1^r = 1.
 Proof.
@@ -230,7 +230,7 @@ Proof.
   move => x y Hy.
   rewrite /Rdiv.
   rewrite Rabs_mult.
-  rewrite Rabs_Rinv //.
+  rewrite Rabs_inv //.
 Qed.
 
 Lemma Rbar_mult_1_r : forall x : Rbar, Rbar_mult x 1 = x.
@@ -275,12 +275,12 @@ Qed.
 
 Lemma Rpower_lt' : forall x y z : R, 0 < x < 1 -> y < z -> x ^ z < x ^ y.
 Proof.
- move => x y z Hx Hyz.
- rewrite -(Rinv_involutive x); [| apply pos_neq0; apply Hx].
- rewrite -!(Rpower_Ropp' (x:=/x)); try apply Rinv_0_lt_compat; try apply Hx.
- apply (Rpower_lt (/x) (-z) (-y)).
+  move => x y z Hx Hyz.
+  rewrite -(Rinv_inv x).
+  rewrite -!(Rpower_Ropp' (x:=/x)); try apply Rinv_0_lt_compat; try apply Hx.
+  apply (Rpower_lt (/x) (-z) (-y)).
   rewrite -Rinv_1; apply (Rinv_lt_contravar x 1); lra.
- lra.
+  lra.
 Qed.
 
 Lemma Rmax_same : forall x:R, Rmax x x = x.

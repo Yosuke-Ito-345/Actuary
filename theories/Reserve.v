@@ -320,7 +320,7 @@ Proof.
   rewrite Rplus_opp_r !Rplus_0_l.
   rewrite Ropp_involutive Ropp_mult_distr_r.
   rewrite -Rmult_plus_distr_l.
-  rewrite /Rdiv Rinv_mult_distr // -Rmult_assoc Rinv_r_simpl_m //.
+  rewrite /Rdiv Rinv_mult // -Rmult_assoc Rinv_r_simpl_m //.
   rewrite Rmult_plus_distr_r Rinv_r //; lra.
 Qed.
 
@@ -341,7 +341,7 @@ Proof.
   rewrite /Rminus Ropp_plus_distr (Rplus_comm _ (--_))
     -Rplus_assoc !(Rplus_assoc _ (-\d^{m})) Rplus_opp_l Rplus_opp_r Rplus_0_r.
   rewrite Rdiv_plus_distr.
-  rewrite /Rdiv Rinv_r; [| apply Rinv_neq_0_compat => //]; rewrite Rinv_involutive //; lra.
+  rewrite /Rdiv Rinv_r; [| apply Rinv_neq_0_compat => //]; rewrite Rinv_inv //; lra.
 Qed.
 
 Lemma res_whole_prem_ann_due : forall m t x : nat, 0 < m -> x+t < \ω ->

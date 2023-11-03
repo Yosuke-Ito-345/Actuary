@@ -17,7 +17,7 @@ Record life : Type := Life {
   l_decr : decreasing l_fun
 }.
 
-Hint Resolve l_0_pos l_neg_nil l_infty_0 l_decr : core.
+#[export] Hint Resolve l_0_pos l_neg_nil l_infty_0 l_decr : core.
 
 Notation "\l[ l ]_ u" := (l_fun l u) (at level 9).
 
@@ -627,7 +627,7 @@ Proof.
   rewrite /survive.
   rewrite (l_exp_RInt_mu (u+t)) //; [| lra].
   rewrite (l_exp_RInt_mu u) //; [| apply (Rbar_le_lt_trans _ (u+t)) => //=; lra].
-  rewrite /Rdiv Rinv_mult_distr; auto; [| apply /pos_neq0 /exp_pos].
+  rewrite /Rdiv Rinv_mult.
   rewrite -!Rmult_assoc (Rmult_comm \l_0) (Rmult_assoc _ \l_0) Rinv_r;
     auto; rewrite Rmult_1_r.
   rewrite -exp_Ropp -exp_plus -Ropp_plus_distr.
