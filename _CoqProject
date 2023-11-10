@@ -1,4 +1,4 @@
--R theories Actuary
+-Q theories Actuary
 
 -arg -w -arg -notation-overridden
 -arg -w -arg -ambiguous-paths
